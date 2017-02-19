@@ -55,6 +55,12 @@ ipa-server-install -r $(echo $DOMAIN) -p $(echo $PASSWORD) -a $(echo $PASSWORD) 
 echo "== Opening Ports ======================="
 firewall-cmd --add-port=80/tcp --permanent    # HTTP
 firewall-cmd --add-port=443/tcp --permanent   # HTTPs
-firewall-cmd --add-port=80/tcp --permanent    # HTTP
-firewall-cmd --add-port=80/tcp --permanent    # HTTP
-firewall-cmd --add-port=80/tcp --permanent    # HTTP
+firewall-cmd --add-port=389/tcp --permanent   # LDAP
+firewall-cmd --add-port=636/tcp --permanent   # LDAPS
+firewall-cmd --add-port=88/tcp --permanent    # Kerberos
+firewall-cmd --add-port=464/tcp --permanent   # Kerberos
+firewall-cmd --add-port=53/tcp --permanent    # DNS
+firewall-cmd --add-port=88/udp --permanent    # Kerberos
+firewall-cmd --add-port=464/udp --permanent   # Kerberos
+firewall-cmd --add-port=53/udp --permanent    # DNS
+firewall-cmd --add-port=123/udp --permanent   # NTP
