@@ -50,7 +50,7 @@ python3 /mnt/shared/Components/certsrv/src/certsrv.py --hostname dcano1.ca.local
 
 # TODO Add synthetic entropy to drop the run time of the below command
 echo "== Finishing up ========================"
-ipa-server-install -r freeipa.cxm7688-admin.lab -p $(echo $PASSWORD) -a $(echo $PASSWORD) -U --external-cert-file=/root/ipa.crt
+ipa-server-install -r $(echo $DOMAIN) -p $(echo $PASSWORD) -a $(echo $PASSWORD) -U --external-cert-file=/root/ipa.crt
 
 echo "== Opening Ports ======================="
 firewall-cmd --add-port=80/tcp --permanent    # HTTP
