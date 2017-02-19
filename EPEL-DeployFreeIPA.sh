@@ -13,7 +13,7 @@
 #   $DomainTemplate     Domain Template for the zone
 #   $ServerName         This server's name. This will be the new hostname
 #   $Password           FreeIPA Administrator and Directory Password
-#
+#   $CAServer           CA Server (dcano1.ca.local or dcano2.ca.local)
 
 echo "== Mounting Shared Drive ==============="
 mkdir /mnt/shared
@@ -45,7 +45,7 @@ echo "== Install FreeIPA Server =============="
 ipa-server-install -r $(echo $DOMAIN) -d $(echo $DOMAIN) -p $(echo $Password) -a $(echo $Password) -U --hostname $(echo "$FQDN") --external-ca --setup-dns --forwarder=172.31.1.1 --forwarder=172.31.1.2 --no-reverse
 
 echo "== Signing CA Cert ====================="
-python3 /mnt/shared/Components/certsrv/src/certsrv.py --hostname dcano1.ca.local --csr /root/ipa.csr --crt /root/ipa.crt --include-chain --no-ssl --verbose
+python3 /mnt/shared/Components/certsrv/src/certsrv.py --hostname $(echo $CAServer) --csr /root/ipa.csr --crt /root/ipa.crt --include-chain --no-ssl --verbose
 
 # TODO Add synthetic entropy to drop the run time of the below command
 echo "== Finishing up ========================"
