@@ -8,15 +8,13 @@
 # Educational use only, as long as they are distributed for the same purpose and
 # not for used for commercial purposes. Any other use is prohibited unless
 # authorized by owner or the Institute.
-
+#
 # Required Inputs
 #   $DomainTemplate     Domain Template for the zone
 #   $ServerName         This server's name. This will be the new hostname
 #   $Password           FreeIPA Administrator and Directory Password
 #
-#
-#
-#
+
 echo "== Mounting Shared Drive ==============="
 mkdir /mnt/shared
 yum -y install cifs-utils
@@ -25,9 +23,10 @@ mount -t cifs //itsnas01.main.ad.rit.edu/vRAscripts$ /mnt/shared -o ro,username=
 echo "== Setting Variables ==================="
 USERNAME=$(/usr/bin/python3 /mnt/shared/Common/guesthelpr/src/workitem.py --property virtualmachine.admin.owner --filter username)
 DOMAIN="${DomainTemplate/%VRMOwner%/$USERNAME}"
-PASSWORD="Student1"
+FQDN="$ServerName.$DOMAIN"
 echo "Username: $USERNAME"
 echo "Domain: $DOMAIN"
+echo "FQDN: $FQDN"
 
 # Install FreeIPA Server
 echo "== Install FreeIPA Server Components ==="
@@ -38,19 +37,19 @@ NET_IF=`netstat -rn | awk '/^0.0.0.0/ {thif=substr($0,74,10); print thif;} /^def
 NET_IP=`ifconfig ${NET_IF} | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
 
 echo "127.0.0.1     localhost" > /etc/hosts
-echo "$NET_IP     dc01.$DOMAIN " >> /etc/hosts
-hostnamectl set-hostname $(echo "dc01.$DOMAIN")
+echo "$NET_IP     $FQDN " >> /etc/hosts
+hostnamectl set-hostname $(echo "$FQDN")
 
 # Part 1. Install without CA, so we can get the CSR
 echo "== Install FreeIPA Server =============="
-ipa-server-install -r $(echo $DOMAIN) -d $(echo $DOMAIN) -p $(echo $PASSWORD) -a $(echo $PASSWORD) -U --hostname $(echo "dc01.$DOMAIN") --external-ca --setup-dns --forwarder=172.31.1.1 --forwarder=172.31.1.2 --no-reverse
+ipa-server-install -r $(echo $DOMAIN) -d $(echo $DOMAIN) -p $(echo $Password) -a $(echo $Password) -U --hostname $(echo "$FQDN") --external-ca --setup-dns --forwarder=172.31.1.1 --forwarder=172.31.1.2 --no-reverse
 
 echo "== Signing CA Cert ====================="
 python3 /mnt/shared/Components/certsrv/src/certsrv.py --hostname dcano1.ca.local --csr /root/ipa.csr --crt /root/ipa.crt --include-chain --no-ssl --verbose
 
 # TODO Add synthetic entropy to drop the run time of the below command
 echo "== Finishing up ========================"
-ipa-server-install -r $(echo $DOMAIN) -p $(echo $PASSWORD) -a $(echo $PASSWORD) -U --external-cert-file=/root/ipa.crt
+ipa-server-install -r $(echo $DOMAIN) -p $(echo $Password) -a $(echo $Password) -U --external-cert-file=/root/ipa.crt
 
 echo "== Opening Ports ======================="
 firewall-cmd --add-port=80/tcp --permanent    # HTTP
