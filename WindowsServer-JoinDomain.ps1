@@ -1,8 +1,8 @@
 ﻿# =========================================================================================
 # Dynamic Variables
 # =========================================================================================
-$DomainUsername = "Administrator@$Domain"
-$DomainPassword = "Student1!" | ConvertTo-SecureString -asPlainText -Force
+$DomainUsername = "$Username@$Domain"
+$DomainPassword = "$Password" | ConvertTo-SecureString -asPlainText -Force
 
 # =========================================================================================
 # Code
