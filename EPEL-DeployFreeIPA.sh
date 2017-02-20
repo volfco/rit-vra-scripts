@@ -46,14 +46,14 @@ hostnamectl set-hostname $(echo "$FQDN")
 echo "== Install FreeIPA Server =============="
 /usr/sbin/ipa-server-install -r $(echo $DOMAIN) -n $(echo $DOMAIN) -p $(echo $Password) -a $(echo $Password) -U --hostname $(echo "$FQDN") --external-ca --setup-dns --forwarder=172.31.1.1 --forwarder=172.31.1.2 --no-reverse
 
-if [[ $? -ne 0]]; then
+if [ $? -ne 0 ]; then
   exit 1
 fi
 
 echo "== Signing CA Cert ====================="
 /usr/bin/python3 /mnt/shared/Components/certsrv/src/certsrv.py --hostname $(echo $CAServer) --csr /root/ipa.csr --crt /root/ipa.crt --include-chain --no-ssl --verbose
 
-if [[ $? -ne 0]]; then
+if [ $? -ne 0 ]; then
   exit 1
 fi
 
@@ -61,7 +61,7 @@ fi
 echo "== Finishing up ========================"
 /usr/sbin/ipa-server-install -r $(echo $DOMAIN) -p $(echo $Password) -a $(echo $Password) -U --external-cert-file=/root/ipa.crt
 
-if [[ $? -ne 0]]; then
+if [ $? -ne 0 ]; then
   exit 1
 fi
 
