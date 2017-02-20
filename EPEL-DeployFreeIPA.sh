@@ -77,3 +77,4 @@ firewall-cmd --add-port=88/udp --permanent    # Kerberos
 firewall-cmd --add-port=464/udp --permanent   # Kerberos
 firewall-cmd --add-port=53/udp --permanent    # DNS
 firewall-cmd --add-port=123/udp --permanent   # NTP
+systemctl reload firewalld
