@@ -25,10 +25,11 @@ echo "== Setting Variables ==================="
 USERNAME=$(/usr/bin/python3 /mnt/shared/Components/guesthelpr/src/workitem.py --property virtualmachine.admin.owner --filter username)
 DOMAIN="${DomainTemplate/'%VRMOwner%'/$USERNAME}"
 DOMAIN="${DOMAIN/'%Domain%'/$DelegatedDomain}"
-FQDN="$ServerName.$DOMAIN"
+ServerFQDN="$ServerName.$DOMAIN"
+FQDN="$DOMAIN"
 echo "Username: $USERNAME"
 echo "Domain: $DOMAIN"
-echo "FQDN: $FQDN"
+echo "Server FQDN: $ServerFQDN"
 
 # Install FreeIPA Server
 echo "== Install FreeIPA Server Components ==="
@@ -39,12 +40,12 @@ NET_IF=`netstat -rn | awk '/^0.0.0.0/ {thif=substr($0,74,10); print thif;} /^def
 NET_IP=`/usr/sbin/ifconfig ${NET_IF} | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`
 
 echo "127.0.0.1     localhost" > /etc/hosts
-echo "$NET_IP     $FQDN " >> /etc/hosts
-hostnamectl set-hostname $(echo "$FQDN")
+echo "$NET_IP     $ServerFQDN " >> /etc/hosts
+hostnamectl set-hostname $(echo "$ServerFQDN")
 
 # Part 1. Install without CA, so we can get the CSR
 echo "== Install FreeIPA Server =============="
-/usr/sbin/ipa-server-install -r $(echo $DOMAIN) -n $(echo $DOMAIN) -p $(echo $Password) -a $(echo $Password) -U --hostname $(echo "$FQDN") --external-ca --setup-dns --forwarder=172.31.1.1 --forwarder=172.31.1.2 --no-reverse
+/usr/sbin/ipa-server-install -r $(echo $DOMAIN) -n $(echo $DOMAIN) -p $(echo $Password) -a $(echo $Password) -U --hostname $(echo "$ServerFQDN") --external-ca --setup-dns --forwarder=172.31.1.1 --forwarder=172.31.1.2 --no-reverse
 
 if [ $? -ne 0 ]; then
   exit 1
