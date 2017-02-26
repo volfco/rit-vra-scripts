@@ -18,6 +18,7 @@
 echo "== Installing IPA Client ==============="
 yum -y install ipa-client > /dev/null
 
+echo "== Configuring System =================="
 HOSTNAME=$(hostname | tr '[:upper:]' '[:lower:]')
 # Src: http://stackoverflow.com/a/33550399
 NET_IF=`netstat -rn | awk '/^0.0.0.0/ {thif=substr($0,74,10); print thif;} /^default.*UG/ {thif=substr($0,65,10); print thif;}'`
@@ -27,6 +28,5 @@ echo "127.0.0.1     localhost" > /etc/hosts
 echo "$NET_IP     $HOSTNAME.$Domain " >> /etc/hosts
 hostnamectl set-hostname $(echo "$HOSTNAME.$Doamin")
 
-
-echo "== Mounting Shared Drive ==============="
-/usr/sbin/ipa-client-install --domain=$(echo $Domain) --principal=$(echo $Username) --password=$(echo $Password) --unattended --enable-dns-updates
+echo "== Joining Domain ======================"
+/usr/sbin/ipa-client-install --domain=$(echo $Domain) --principal=$(echo $Username) --password=$(echo $Password) --hostname $(echo "$HOSTNAME.$Doamin") --unattended --enable-dns-updates
