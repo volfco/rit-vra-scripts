@@ -15,7 +15,7 @@ $VRMOwner = ( $VMAttrs.workitem.properties.property | Where {$_.name -eq 'virtua
 # Figure out the Zone of this dns server
 $FQDN = $ZoneTemplate.Replace('%VRMOwner%', $VRMOwner)
 if ($Domain -ne $null -or $Domain -ne "") {
-    $FQDN = $ZoneTemplate.Replace('%Domain%', $Domain)
+    $FQDN = $FQDN.Replace('%Domain%', $Domain)
 }
 
 # =========================================================================================
