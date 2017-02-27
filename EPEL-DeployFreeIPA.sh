@@ -22,10 +22,15 @@ yum -y install cifs-utils > /dev/null
 mount -t cifs //itsnas01.main.ad.rit.edu/vRAscripts$ /mnt/shared -o ro,username=vrauser,password=Student1!
 
 echo "== Setting Variables ==================="
+if [ $ServerName == "" ]; then
+	ServerName=$(hostname)
+fi
+
+ServerFQDN="$ServerName.$DOMAIN"
 USERNAME=$(/usr/bin/python3 /mnt/shared/Components/guesthelpr/src/workitem.py --property virtualmachine.admin.owner --filter username)
 DOMAIN="${DomainTemplate/'%VRMOwner%'/$USERNAME}"
 DOMAIN="${DOMAIN/'%Domain%'/$Domain}"
-ServerFQDN="$ServerName.$DOMAIN"
+
 FQDN="$DOMAIN"
 echo "Username: $USERNAME"
 echo "Domain: $DOMAIN"
@@ -45,17 +50,25 @@ hostnamectl set-hostname $(echo "$ServerFQDN")
 
 # Part 1. Install without CA, so we can get the CSR
 echo "== Install FreeIPA Server =============="
-/usr/sbin/ipa-server-install -r $(echo $DOMAIN) -n $(echo $DOMAIN) -p $(echo $Password) -a $(echo $Password) -U --hostname $(echo "$ServerFQDN") --external-ca --setup-dns --forwarder=172.31.1.1 --forwarder=172.31.1.2 --no-reverse
+if [ $CAServer != "" ]; then
+	CACONFIG="--external-ca"
+else
+	CACONFIG=""
+fi
+
+/usr/sbin/ipa-server-install -r $(echo $DOMAIN) -n $(echo $DOMAIN) -p $(echo $Password) -a $(echo $Password) -U --hostname $(echo "$ServerFQDN") $(echo $CACONFIG) --setup-dns --forwarder=172.31.1.1 --forwarder=172.31.1.2 --no-reverse
 
 if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo "== Signing CA Cert ====================="
-/usr/bin/python3 /mnt/shared/Components/certsrv/src/certsrv.py --hostname $(echo $CAServer) --csr /root/ipa.csr --crt /root/ipa.crt --include-chain --no-ssl --verbose
+if [ $CAServer != "" ]; then
+	echo "== Signing CA Cert ====================="
+	/usr/bin/python3 /mnt/shared/Components/certsrv/src/certsrv.py --hostname $(echo $CAServer) --csr /root/ipa.csr --crt /root/ipa.crt --include-chain --no-ssl --verbose
 
-if [ $? -ne 0 ]; then
-  exit 1
+	if [ $? -ne 0 ]; then
+	  exit 1
+	fi
 fi
 
 # TODO Add synthetic entropy to drop the run time of the below command
