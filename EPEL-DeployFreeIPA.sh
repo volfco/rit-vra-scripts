@@ -14,7 +14,7 @@
 #   $ServerName         This server's name. This will be the new hostname
 #   $Password           FreeIPA Administrator and Directory Password
 #   $CAServer           CA Server (dcano1.ca.local or dcano2.ca.local)
-#   $DelegatedDomain
+#   $Domain
 
 echo "== Mounting Shared Drive ==============="
 mkdir /mnt/shared
@@ -24,7 +24,7 @@ mount -t cifs //itsnas01.main.ad.rit.edu/vRAscripts$ /mnt/shared -o ro,username=
 echo "== Setting Variables ==================="
 USERNAME=$(/usr/bin/python3 /mnt/shared/Components/guesthelpr/src/workitem.py --property virtualmachine.admin.owner --filter username)
 DOMAIN="${DomainTemplate/'%VRMOwner%'/$USERNAME}"
-DOMAIN="${DOMAIN/'%Domain%'/$DelegatedDomain}"
+DOMAIN="${DOMAIN/'%Domain%'/$Domain}"
 ServerFQDN="$ServerName.$DOMAIN"
 FQDN="$DOMAIN"
 echo "Username: $USERNAME"
