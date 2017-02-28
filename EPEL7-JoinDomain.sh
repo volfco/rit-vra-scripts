@@ -29,4 +29,4 @@ echo "$NET_IP     $HOSTNAME.$Domain " >> /etc/hosts
 hostnamectl set-hostname $(echo "$HOSTNAME.$Doamin")
 
 echo "== Joining Domain ======================"
-/usr/sbin/ipa-client-install --domain=$(echo $Domain) --principal=$(echo $Username) --password=$(echo $Password) --hostname $(echo "$HOSTNAME.$Doamin") --unattended --enable-dns-updates
+/usr/sbin/ipa-client-install --domain=$(echo $Domain) --principal=$(echo $Username) --password=$(echo $Password) --hostname $(echo "$HOSTNAME.$Domain") --mkhomedir --unattended --enable-dns-updates
